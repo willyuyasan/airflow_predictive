@@ -1,0 +1,20 @@
+airflow connections export dags/airflow_connections.json
+
+sudo chmod 644 config
+sudo chmod 644 logs
+sudo chmod 644 plugins
+
+
+sudo chmod u+w logs
+
+sudo rm -r config
+sudo rm -r logs
+
+
+# Prevent to suspend when close the lid (Ubuntu)
+sudo nano /etc/systemd/logind.conf
+And put
+HandleLidSwitch=ignore Revoving the #
+Save and exit
+And restart the service
+sudo systemctl restart systemd-logind

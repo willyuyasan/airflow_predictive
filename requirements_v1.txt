@@ -1,0 +1,16 @@
+pandas
+matplotlib
+psycopg2-binary
+seaborn
+openpyxl
+requests
+python-dotenv
+msgraph-sdk
+pyxlsb
+oauth2client
+s3fs
+yfinance
+tabulate
+statsmodels
+google-auth
+google-api-python-client
