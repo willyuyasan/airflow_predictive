@@ -99,12 +99,8 @@ class sp50015mStrategy:
         outputs_dict = strategiesimplementation.outputs_dict
 
         # Performance metrics
-        params_dict = {}
-        params_dict['ticker'] = self.ticker
-        params_dict['interval'] = self.interval
-        params_dict['days'] = 7
+        params_dict = performace_metrics_params(self.ticker, self.interval)
         performancemetrics = performanceMetrics(inputs_dict = outputs_dict, params_dict=params_dict)
-        #performancemetrics = performanceMetrics(inputs_dict = outputs_dict)
         performancemetrics.run()
         outputs_dict = performancemetrics.outputs_dict
 
@@ -140,6 +136,20 @@ class sp50015mStrategy:
 
 
 # Additional functionalities
+
+def performace_metrics_params(ticker, interval):
+    current_dt = datetime.datetime.now(datetime.timezone.utc)
+    current_date = current_dt.date()
+    current_time = str(current_dt.hour).zfill(2) + str(current_dt.minute).zfill(2)
+
+    params_dict = {}
+
+    if (1315 <= int(current_time) <= 1959):
+        params_dict['ticker'] = ticker
+        params_dict['interval'] = interval
+        params_dict['days'] = 7
+    
+    return params_dict
     
 def send_whatsapp_notification(inputs_dict):
 

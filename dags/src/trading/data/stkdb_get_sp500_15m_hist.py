@@ -30,6 +30,7 @@ class getSp50015mHist:
     def run(self):
     
         self.output_df = self.getdata(self.query, self.conn_name, self.conns_str)
+        self.output_df = self.data_arrangement(self.output_df)
         self.__rename_output()
 
     def prepares_query(self, query, query_parms):
@@ -88,10 +89,27 @@ class getSp50015mHist:
 
         return output_df
     
+    def data_arrangement(self, output_df):
+
+        obs_df = output_df.groupby(
+            ['created_at'],
+            as_index=False,
+        ).agg(
+            regs = ('Datetime','count'),
+            min_datetime = ('Datetime','min'),
+            max_datetime = ('Datetime','min'),
+        ).copy()
+
+        logger.info(f'\nWU -> Available stocks into the DB:\n{obs_df}\n')
+
+        return output_df
+    
     def __rename_output(self):
 
         script = f'self.{self.df_output_name} = self.output_df'
         exec(script)
+
+    
  
     
 

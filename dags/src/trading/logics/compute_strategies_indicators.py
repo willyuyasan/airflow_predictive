@@ -31,6 +31,9 @@ class computeStrategiesIndicators:
         outputs_dict = inputs_dict
         data_e2_df = outputs_dict['data_e2_df'].copy()
 
+        # Important step to order the series and compute indicators
+        data_e2_df = data_e2_df.sort_values('Datetime').copy()
+        data_e2_df = data_e2_df.reset_index(drop=True).copy()
 
         # Window indicators SMA
         data_e2_df['SMA1'] = data_e2_df['Close'].rolling(window=100).mean()
