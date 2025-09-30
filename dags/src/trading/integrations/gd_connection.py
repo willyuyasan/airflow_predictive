@@ -2,6 +2,8 @@ import os
 import io
 import logging
 import pandas as pd
+import json
+import base64
 #!pip install openpyxl
 
 #!pip install google-auth
@@ -21,24 +23,30 @@ logger = logging.getLogger(__name__)
 
 class gdConnection:
 
-    def __init__(self, **kwargs):
+    def __init__(self, conns_str):
 
         # Remember, the google credentials if for APP in google clouds with (service accounts credential)
         # The drive enable conections is after granting access permision to the service account direction to the target folders
 
-        self.credential_filename = kwargs.get('credential_filename',None)
-        self.credential_location = './integrations' #Here change depending of your app
+        gd_credential_txt = conns_str['googleapi']['gd_credential']
+        self.prepares_json_credential(gd_credential_txt)
+        
 
     @try_execution
     def run(self):
 
-        self.service = self.get_service(self.credential_location, self.credential_filename)
+        self.service = self.get_service(self.gd_credential_json)
+
+    def prepares_json_credential(self, gd_credential_txt):
+
+        gd_credential_txt = base64.b64decode(gd_credential_txt).decode('utf-8')
+        self.gd_credential_json = json.loads(gd_credential_txt)
 
     @try_execution  
-    def get_service(self, credential_location, credential_filename):
+    def get_service(self, credential_json):
 
-        creds = service_account.Credentials.from_service_account_file(
-            f'{credential_location}/{credential_filename}', 
+        creds = service_account.Credentials.from_service_account_info(
+            credential_json, 
             scopes=['https://www.googleapis.com/auth/drive']
         )
 

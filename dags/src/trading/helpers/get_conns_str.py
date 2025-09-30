@@ -4,6 +4,7 @@ import numpy as np
 import logging
 
 from helpers.additional_functionalities import try_execution
+from helpers.gets_environmet_credentials import Getsenvironmentcredentials
 from integrations.gd_connection import gdConnection
 
 log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -25,11 +26,13 @@ class getConnsStr:
         self.outputs_dict = self.get_connection_app_info()
         self.outputs_dict = self.get_connection_df(self.outputs_dict, self.app, self.app_environment)
         self.outputs_dict = self.create_conns_str(self.outputs_dict)
+
     
     @try_execution
     def get_connection_app_info(self):
 
-        gdconnection = gdConnection(credential_filename='google_credentials.json')
+        conns_str = Getsenvironmentcredentials().run()
+        gdconnection = gdConnection(conns_str = conns_str)
         gdconnection.run()
 
         # Google drive url where the credentials excel file are located

@@ -1,15 +1,20 @@
 airflow connections export dags/airflow_connections.json
 
-sudo chmod 644 config
-sudo chmod 644 logs
-sudo chmod 644 plugins
 
-
-sudo chmod u+w logs
+sudo chmod -R u+rw config/
+sudo chmod 755 config/
 
 sudo rm -r config
 sudo rm -r logs
 
+git add .
+git commit -m "initial commit"
+# Go to github an create a new blank repository
+git remote add origin https://github.com/willyuyasan/airflow_predictive.git
+ 
+
+git remote -v
+git ls-remote --get-url origin
 
 # Prevent to suspend when close the lid (Ubuntu)
 sudo nano /etc/systemd/logind.conf
@@ -17,4 +22,4 @@ And put
 HandleLidSwitch=ignore Revoving the #
 Save and exit
 And restart the service
-sudo systemctl restart systemd-logind
+sudo systemctl restart systemd-login
