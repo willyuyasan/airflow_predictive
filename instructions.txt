@@ -2,7 +2,7 @@ airflow connections export dags/airflow_connections.json
 
 
 sudo chmod -R u+rw config/
-sudo chmod 755 config/
+sudo chmod -R 755 config/
 
 sudo rm -r config
 sudo rm -r logs

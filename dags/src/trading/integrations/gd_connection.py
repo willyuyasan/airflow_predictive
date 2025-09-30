@@ -41,6 +41,7 @@ class gdConnection:
 
         gd_credential_txt = base64.b64decode(gd_credential_txt).decode('utf-8')
         self.gd_credential_json = json.loads(gd_credential_txt)
+        #print(self.gd_credential_json)
 
     @try_execution  
     def get_service(self, credential_json):

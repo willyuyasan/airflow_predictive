@@ -50,7 +50,6 @@ dag = DAG(dag_id = 'SP500_15m_strategy',
           catchup=False,
           default_args=default_args,
           schedule="*/15 13-20 * * MON-FRI",
-          #schedule="*/15 * * * *",
           #schedule = None,
           start_date=START_DATE,
           max_active_runs=1)

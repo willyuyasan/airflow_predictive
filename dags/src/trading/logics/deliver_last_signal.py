@@ -82,12 +82,12 @@ class deliverLastSignal:
             utc=pytz.UTC
             limit_dt = limit_dt.replace(tzinfo=utc)
 
-            logger.info(f'WU ->\nLast stock date: {max_stock_dt}\nLimit date: {limit_dt}\nCurrent date: {current_dt}')
+            logger.info(f'\nWU -> Last stock date: {max_stock_dt}\nLimit date: {limit_dt}\nCurrent date: {current_dt}\n')
 
             last_signal_df = last_signals_df.iloc[[-2]]
             last_signal_df['Market Status'] = 'OPEN'
             
-            if (max_stock_date == current_date) & (1945 < int(current_time) < 2015):
+            if (max_stock_date == current_date) & (2000 <= int(current_time) <= 2015):
                 last_signal_df = last_signals_df.iloc[[-1]]
                 last_signal_df['Market Status'] = 'LAST OPERATION'
 

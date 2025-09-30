@@ -28,7 +28,7 @@ class apiGetStockData:
     def get_data(self):
 
         # Fetch historical stock data
-        time.sleep(5) #Wait for 5 secs to passt complete the time interval
+        time.sleep(10) #Wait for 5 secs to passt complete the time interval
 
         stock_df = yf.download(self.ticker, interval=self.interval, period=self.period)
         #stock_df = yf.download(self.ticker,, interval="1d", start="2024-01-01", end="2024-03-31")

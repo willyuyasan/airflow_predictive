@@ -30,6 +30,13 @@ class strategiesImplementation:
         outputs_dict = inputs_dict
         data_e2_df = outputs_dict['data_e2_df'].copy()
 
+        min_datetime = min(data_e2_df['Datetime'])
+        max_datetime = max(data_e2_df['Datetime'])
+
+        hist_months = (max_datetime - min_datetime).days / 30
+
+        logger.info(f'\nWU-> Total data for computing strategy: {data_e2_df.shape},\nFrom: ({min_datetime}) to ({max_datetime})\nMonths: {hist_months}')
+
         signal_ls = [0]
         order_number_ls = [0]
         order_step_ls = [0]
