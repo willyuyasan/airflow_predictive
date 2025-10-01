@@ -70,7 +70,9 @@ class whatsappConnection:
         print(response.text)
 
     
-    def send_image(self, recepient_phone_number, image_buffer):
+    def send_image(self, recepient_phone_number, image_buffer, **kwargs):
+
+        msg_body = kwargs.get('msg_body','')
 
         media_url = f'https://graph.facebook.com/v23.0/{self.phone_number_id}/media'
 
@@ -96,6 +98,47 @@ class whatsappConnection:
             'to': recepient_phone_number,
             'type': 'image',
             'image': {
+                'id': str(media_id),
+                'caption': msg_body
+            }
+        }
+
+        response = requests.post(self.url, headers=self.headers, data=json.dumps(payload))
+        print(response.json())
+
+    def send_file(self, recepient_phone_number, document_buffer, extension):
+
+        media_url = f'https://graph.facebook.com/v23.0/{self.phone_number_id}/media'
+
+        mimetypes_dict = {
+            'xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }
+
+        mimetype = mimetypes_dict[extension]
+
+        document_buffer.name = 'document.' + extension
+        document_buffer.seek(0)
+
+        files = { "file" : ('whatsapp', document_buffer, mimetype)}
+        #files = { "file" : ('whatsapp', '@/Strategy_summary.png', 'image/png')}
+
+        payload = {
+            'messaging_product':'whatsapp',
+            'type': mimetype
+            }
+
+        response = requests.post(media_url, headers=self.headersimg, params=payload, files=files)
+        res = response.json()
+        print(res)
+
+        media_id = res['id']
+
+        payload = {
+            'messaging_product': 'whatsapp',
+            'recipient_type': 'individual',
+            'to': recepient_phone_number,
+            'type': 'document',
+            'document': {
                 'id': str(media_id)
             }
         }

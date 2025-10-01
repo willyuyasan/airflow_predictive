@@ -37,6 +37,7 @@ class performanceMetrics:
         self.outputs_dict = self.select_data(self.inputs_dict, interval = self.interval, days = self.days)
         self.outputs_dict = self.computes_cummulative_returns(self.outputs_dict)
         self.outputs_dict = self.computes_strategy_gains(self.outputs_dict)
+        self.operations_profit(self.outputs_dict)
 
     def select_data(self, inputs_dict, **kwargs):
 
@@ -154,5 +155,60 @@ class performanceMetrics:
         outputs_dict['imagebuffer'] = imagebuffer
 
         return outputs_dict
+    
+    def operations_profit(self, inputs_dict):
+
+        outputs_dict = inputs_dict
+        data_e_df = outputs_dict['data_e_df'].copy()
+
+        orders_df = data_e_df.loc[
+            (data_e_df['signal'] == 0)
+            &(data_e_df['strategy_gain'] == 0)==False
+            ].copy()
+
+        orders_df['order_candles'] = orders_df.groupby(['order_number'])['index'].transform('count')
+
+        ordersgain_df = orders_df.groupby(['order_number'], as_index=False).last().copy()
+
+        ordersgain_df['is_profitable'] = False
+
+        ordersgain_df.loc[
+            ordersgain_df['acum_strategy_gain']>0
+            ,'is_profitable']=True
+
+        obs_df = ordersgain_df.groupby(
+            ['is_profitable'],
+            as_index = False
+        ).agg(
+            oreders = ('order_number','count'),
+            gain_amount = ('acum_strategy_gain','sum'),
+            gain_avg = ('acum_strategy_gain','mean'),
+            candles = ('order_candles','mean'),
+        ).copy()
+
+        logger.info(f'\nWU -> Operations profitability:\n{obs_df}\n')
+
+        try:
+            loss_amount = obs_df[obs_df['is_profitable']==False]['gain_amount'].iloc[0]
+        except:
+            loss_amount = 0
+
+        try:
+            gain_amount = obs_df[obs_df['is_profitable']==True]['gain_amount'].iloc[0]
+        except:
+            gain_amount = 0
+
+        strategy_amount_gain = gain_amount + loss_amount
+
+        logger.info(f'\nWU -> Strategy total gain points:({strategy_amount_gain})\n')
+        
+        init_price = data_e_df['Close'].iloc[1]
+        final_price =data_e_df['Close'].iloc[-1]
+
+        market_amount_gain = final_price - init_price
+        
+        logger.info(f'\nWU -> Market total gain points:({market_amount_gain})\n')
+
+        
         
 

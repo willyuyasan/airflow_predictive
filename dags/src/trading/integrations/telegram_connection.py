@@ -88,3 +88,22 @@ class telegramConnection:
         res = response.json()
         logger.info(res)
 
+    def send_file(self, document_buffer, extension):
+
+        url = f"https://api.telegram.org/bot{self.TELEGRAM_BOT_TOKEN}/sendDocument"
+
+        payload = {
+            'chat_id': self.CHAT_ID,
+            'caption': '',
+            'parse_mode': 'html'
+        }
+
+        document_buffer.name = 'document.'+ str(extension)
+        document_buffer.seek(0)
+        files = {'document': document_buffer.getvalue()}
+
+
+        response = requests.post(url=url, data=payload, files=files)
+        res = response.json()
+        logger.info(res)
+

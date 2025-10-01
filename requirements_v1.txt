@@ -14,3 +14,4 @@ tabulate
 statsmodels
 google-auth
 google-api-python-client
+xlsxwriter

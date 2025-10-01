@@ -1,6 +1,8 @@
 import sys
 import os
+import io
 import time
+import pandas as pd
 
 import logging
 log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -24,3 +26,12 @@ def try_execution(func):
             raise
 
     return wrapper
+
+def excel_buffer_f(input_df):
+
+    document_buffer = io.BytesIO()
+    writer_excel = pd.ExcelWriter(document_buffer, engine='xlsxwriter')
+    input_df.to_excel(writer_excel, sheet_name='Hoja1', index=False)
+    writer_excel.close()
+
+    return document_buffer

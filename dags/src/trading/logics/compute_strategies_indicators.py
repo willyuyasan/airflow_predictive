@@ -204,6 +204,13 @@ class computeStrategiesIndicators:
         outputs_dict = inputs_dict
         data_e2_df = outputs_dict['data_e2_df'].copy()
 
+        # Important step to order the series and compute indicators
+        data_e2_df = data_e2_df.sort_values('Datetime').copy()
+        data_e2_df = data_e2_df.reset_index(drop=True).copy()
+
+        # Compute Market gain
+        data_e2_df['market_gain'] = data_e2_df['Open_adj'] - data_e2_df['Close'] 
+
         # Window indicators SMA
         data_e2_df['SMA1'] = data_e2_df['Close'].rolling(window=100).mean()
         data_e2_df['SMA2'] = data_e2_df['Close'].rolling(window=200).mean()

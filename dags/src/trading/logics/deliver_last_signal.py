@@ -26,10 +26,9 @@ class deliverLastSignal:
 
         self.outputs_dict = self.compute_last_signal(self.inputs_dict)
 
-
     def compute_last_signal(self, inputs_dict):
 
-        if self.strategy == 'sp500_15m':
+        if self.strategy in ['sp500_15m','sp500_15m_v2']:
         
             outputs_dict = inputs_dict
             data_e_df = outputs_dict['data_e_df'].copy()
@@ -87,7 +86,7 @@ class deliverLastSignal:
             last_signal_df = last_signals_df.iloc[[-2]]
             last_signal_df['Market Status'] = 'OPEN'
             
-            if (max_stock_date == current_date) & (2000 <= int(current_time) <= 2015):
+            if (max_stock_date == current_date) & (2000 <= int(current_time) < 2015): #At 2000
                 last_signal_df = last_signals_df.iloc[[-1]]
                 last_signal_df['Market Status'] = 'LAST OPERATION'
 

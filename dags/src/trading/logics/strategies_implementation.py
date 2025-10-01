@@ -176,6 +176,7 @@ class strategiesImplementation:
         order_step_ls = [0]
         open_price_ls = [0]
         acum_strategy_gain_ls = [0] 
+        max_strategy_gain_ls = [0]
         order_gain_balance_ls = [0]
         order_loss_balance_ls = [0]
 
@@ -185,7 +186,6 @@ class strategiesImplementation:
             close = x['Close']
             nclose = x['nclose']
             current_return = x['current_return']
-            sma1_diff = x['sma1_diff']
             slope = x['slope1']
             tendency = x['tendency']
             time = int(x['Time'])
@@ -195,17 +195,29 @@ class strategiesImplementation:
             order_step = order_step_ls[0]
             open_price = open_price_ls[0]
             acum_strategy_gain = acum_strategy_gain_ls[0]
+            max_strategy_gain = max_strategy_gain_ls[0]
             order_gain_balance = order_gain_balance_ls[0]
             order_loss_balance = order_loss_balance_ls[0]
 
             start_order = False
 
-            
             # Estrategy signal
             if (signal==0):
 
-                if (nclose < -0.0025):
+                if (0.001 < slope) & (-0.004 < nclose):
                     signal = 1
+                    start_order = True
+                
+                if (0.0005 < slope) & (-0.002 < nclose < 0.003):
+                    signal = 1
+                    start_order = True
+
+                if (-0.0005 < slope) & (nclose < -0.004):
+                    signal = 1
+                    start_order = True
+                
+                if (slope > -0.000117) & (nclose > 0.01):
+                    signal = -1
                     start_order = True
 
             # Order balance
@@ -224,6 +236,7 @@ class strategiesImplementation:
             if order_step == 1:
                 strategy_gain = 0
                 acum_strategy_gain = 0
+                max_strategy_gain = 0
                 strategy_return = 0   
                 
             if strategy_gain >= 0:
@@ -231,42 +244,55 @@ class strategiesImplementation:
 
             if strategy_gain < 0:
                 order_loss_balance = order_loss_balance + strategy_gain
-
-            if acum_strategy_gain != 0:
-                pp_change_gain = strategy_gain / acum_strategy_gain
-            else:
-                pp_change_gain = 0
-
+            
             acum_strategy_gain = acum_strategy_gain + strategy_gain
+            max_strategy_gain = max([max_strategy_gain, acum_strategy_gain])
 
-            if open_price != 0:
-                pp_strategy_gain = acum_strategy_gain / open_price
+            if max_strategy_gain != 0:
+                pp_max_gain = acum_strategy_gain / max_strategy_gain
             else:
-                pp_strategy_gain = 0     
+                pp_max_gain = -1
+                max_strategy_gain = strategy_gain
 
             # Order closure conditions
             if (signal==1):
 
-                if (acum_strategy_gain >= 30) | (acum_strategy_gain <= -25) :
+                if (nclose > 0.009):
                     signal = 0
-                if (pp_change_gain < -0.3):
+
+                if (pp_max_gain < 0.5) & (order_step > 3):
                     signal = 0
-                if (slope < 0):
-                    signal = 0
-                if (tendency <= -3):
-                    signal = 0
+
                 if (acum_strategy_gain <0) & (order_step > 3):
                     signal = 0
+
+                if (nclose < -0.005) & (acum_strategy_gain <0):
+                    signal = 0
+            
+            if (signal==-1):
+
+                if (nclose < -0.009):
+                    signal = 0
+
+                if (pp_max_gain < 0.8) & (order_step > 3):
+                    signal = 0
+                
+                if (nclose > -0.0005) & (acum_strategy_gain <0):
+                    signal = 0
+
+                #if (acum_strategy_gain <= -10) | (acum_strategy_gain > 10):
+                #    signal = 0
                     
             signal_ls[0] = signal
             order_number_ls[0] = order_number
             order_step_ls[0] = order_step
             open_price_ls[0] = open_price
             acum_strategy_gain_ls[0] = acum_strategy_gain
+            max_strategy_gain_ls[0] = max_strategy_gain
             order_gain_balance_ls[0] = order_gain_balance
             order_loss_balance_ls[0] = order_loss_balance
 
-            return signal, open_price, order_number, order_step, strategy_gain, pp_change_gain, order_gain_balance, order_loss_balance, strategy_return, acum_strategy_gain, pp_strategy_gain
+            return signal, open_price, order_number, order_step, strategy_gain, pp_max_gain, order_gain_balance, order_loss_balance, strategy_return, acum_strategy_gain, max_strategy_gain
 
         info = data_e2_df.apply(lambda x: orders_steps_f(x), axis=1)
         cols_ls = [
@@ -275,12 +301,12 @@ class strategiesImplementation:
             'order_number', 
             'order_step', 
             'strategy_gain', 
-            'pp_change_gain', 
+            'pp_max_gain', 
             'order_gain_balance', 
             'order_loss_balance',
             'strategy_return', 
             'acum_strategy_gain', 
-            'pp_strategy_gain'
+            'max_strategy_gain',
         ]
 
         info_df = pd.DataFrame(info.tolist(), columns=cols_ls).copy()

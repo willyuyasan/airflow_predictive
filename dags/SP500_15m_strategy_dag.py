@@ -8,18 +8,32 @@ log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(level=logging.INFO, format=log_fmt)
 logger = logging.getLogger(__name__)
 
-from airflow import DAG
+#from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.empty import EmptyOperator
+from airflow.sdk import DAG, task, Param, get_current_context
 
-from src.trading.SP500_15m_strategy import sp50015mStrategy
+from src.trading.SP500_15m_strategy_v2 import sp50015mStrategy
+
+
+def prepares_dag_parameters():
+
+    ctx = get_current_context()
+    execution_option = ctx["params"]["execution_option"]
+
+    params_dict = {}
+    params_dict['execution_option'] = execution_option
+
+    return params_dict
 
 def sp50015mstrategy_f():
 
     try:
         logger.info(f'\n\nWU-> Process (sp500_15m_strategy) STARTED!\n\n')
 
-        sp50015mstrategy = sp50015mStrategy()
+        params_dict = prepares_dag_parameters()
+
+        sp50015mstrategy = sp50015mStrategy(params_dict = params_dict)
         sp50015mstrategy.run()
 
         outputs_dict = sp50015mstrategy.outputs_dict
@@ -52,7 +66,11 @@ dag = DAG(dag_id = 'SP500_15m_strategy',
           schedule="*/15 13-20 * * MON-FRI",
           #schedule = None,
           start_date=START_DATE,
-          max_active_runs=1)
+          max_active_runs=1,
+          params={
+            "execution_option": None
+            }
+     )
 
 dag_start = EmptyOperator(
     task_id='start',
