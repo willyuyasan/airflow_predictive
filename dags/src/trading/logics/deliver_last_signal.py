@@ -9,6 +9,8 @@ log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(level=logging.INFO, format=log_fmt)
 logger = logging.getLogger(__name__)
 
+from helpers.additional_functionalities import try_execution
+
 
 class deliverLastSignal:
 
@@ -22,13 +24,15 @@ class deliverLastSignal:
         except:
             self.strategy = None
 
+    @try_execution
     def run(self):
 
         self.outputs_dict = self.compute_last_signal(self.inputs_dict)
 
+    @try_execution
     def compute_last_signal(self, inputs_dict):
 
-        if self.strategy in ['sp500_15m','sp500_15m_v2']:
+        if self.strategy in ['sp500_15m','sp500_15m_v2','sp500_15m_v3']:
         
             outputs_dict = inputs_dict
             data_e_df = outputs_dict['data_e_df'].copy()

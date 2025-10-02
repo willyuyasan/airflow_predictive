@@ -13,7 +13,7 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.empty import EmptyOperator
 from airflow.sdk import DAG, task, Param, get_current_context
 
-from src.trading.SP500_15m_strategy_v2 import sp50015mStrategy
+from src.trading.SP500_15m_strategy_v3 import sp50015mStrategy
 
 
 def prepares_dag_parameters():

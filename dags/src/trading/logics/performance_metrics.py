@@ -55,11 +55,15 @@ class performanceMetrics:
             logger.info(f'\nWU -> intervals for compute performance of strategy:\nDays: {days}\ninterval: {interval}\n')
 
             data_e_df = data_e2_df.iloc[-nro_candles:,:].copy()
+            
+            min_order_number = min(data_e_df['order_number'])
+            data_e_df = data_e2_df[data_e2_df['order_number']>=min_order_number]
 
         else:
 
             data_e_df = data_e2_df.copy()
 
+        data_e_df = data_e_df[data_e_df['order_number']>=1].copy()
 
         data_e_df = data_e_df.drop(columns=['index']).copy()
         data_e_df = data_e_df.reset_index(drop=True).copy()
@@ -68,8 +72,6 @@ class performanceMetrics:
         data_e_df.loc[
             data_e_df['index']==0
             ,'current_return'] = 0
-
-        data_e_df = data_e_df[data_e_df['order_number']>=1].copy()
 
         logger.info(f'\nWU -> Data for compute performance of strategy:\n{data_e_df.shape}\n')
 
