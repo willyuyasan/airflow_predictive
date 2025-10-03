@@ -1,10 +1,14 @@
 import pandas as pd    # For data manipulation
 import numpy as np
+import datetime
+import pytz
 
 import logging
 log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(level=logging.INFO, format=log_fmt)
 logger = logging.getLogger(__name__)
+
+from helpers.additional_functionalities import try_execution
 
 
 
@@ -12,10 +16,11 @@ class strategiesImplementation:
 
     def __init__(self, **kwargs):
 
-        self.strategy = kwargs.get('strategy',None)
         self.inputs_dict = kwargs.get('inputs_dict',None)
+        params_dict = kwargs.get('params_dict',None)
+        self.prepares_process_parameters(params_dict)
 
-
+    @try_execution
     def run(self):
 
         if self.strategy == 'sp500_15m':
@@ -27,6 +32,19 @@ class strategiesImplementation:
         if self.strategy == 'sp500_15m_v3':
             self.outputs_dict = self.strategy_sp500_15m_v3(self.inputs_dict)
 
+    def prepares_process_parameters(self, params_dict):
+
+        try:
+            self.strategy = params_dict['strategy']
+        except:
+            self.strategy = None
+
+        try:
+            self.force_closure_dts_ls = params_dict['force_closure_dts_ls']
+        except:
+            self.force_closure_dts_ls = None 
+
+    @try_execution
     def strategy_sp500_15m(self, inputs_dict):
 
         outputs_dict = inputs_dict
@@ -168,6 +186,7 @@ class strategiesImplementation:
 
         return outputs_dict
     
+    @try_execution
     def strategy_sp500_15m_v2(self, inputs_dict):
 
         outputs_dict = inputs_dict
@@ -319,6 +338,7 @@ class strategiesImplementation:
 
         return outputs_dict
     
+    @try_execution
     def strategy_sp500_15m_v3(self, inputs_dict):
 
         outputs_dict = inputs_dict
@@ -339,7 +359,7 @@ class strategiesImplementation:
             current_return = x['current_return']
             slope = x['slope1']
             tendency = x['tendency']
-            time = int(x['Time'])
+            dtpoint = x['Datetime']
 
             signal = signal_ls[0]
             order_number = order_number_ls[0]
@@ -426,6 +446,19 @@ class strategiesImplementation:
 
                 if (acum_strategy_gain <0) & (order_step > 3):
                     signal = 0
+
+            # Forced closures
+
+            if (self.force_closure_dts_ls != None) & (self.force_closure_dts_ls != []):
+                force_closure_dts_ls = self.force_closure_dts_ls
+                force_closure_dts_ls = [datetime.datetime.strptime(d, '%Y-%m-%d %H:%M:%S') for d in force_closure_dts_ls]
+                utc=pytz.UTC
+                force_closure_dts_ls = [d.replace(tzinfo=utc) for d in force_closure_dts_ls]
+            else:
+                force_closure_dts_ls = []
+
+            if dtpoint in force_closure_dts_ls:
+                signal = 0
                     
             signal_ls[0] = signal
             order_number_ls[0] = order_number

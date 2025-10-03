@@ -14,15 +14,21 @@ from airflow.operators.empty import EmptyOperator
 from airflow.sdk import DAG, task, Param, get_current_context
 
 from src.trading.SP500_15m_strategy_v3 import sp50015mStrategy
+from src.trading.helpers.app_environment_parameters import appEnvironmentParms
+
+force_closure_dts_dict = appEnvironmentParms().force_closure_dts_dict
+force_closure_dts_ls = force_closure_dts_dict['sp500_15m_v3']
 
 
 def prepares_dag_parameters():
 
     ctx = get_current_context()
     execution_option = ctx["params"]["execution_option"]
+    force_closure_dts_ls = ctx["params"]["force_closure_dts_ls"]
 
     params_dict = {}
     params_dict['execution_option'] = execution_option
+    params_dict['force_closure_dts_ls'] = force_closure_dts_ls
 
     return params_dict
 
@@ -68,7 +74,8 @@ dag = DAG(dag_id = 'SP500_15m_strategy',
           start_date=START_DATE,
           max_active_runs=1,
           params={
-            "execution_option": None
+            "execution_option": None,
+            "force_closure_dts_ls": force_closure_dts_ls
             }
      )
 

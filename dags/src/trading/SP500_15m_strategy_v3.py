@@ -51,6 +51,11 @@ class sp50015mStrategy:
         except:
             self.execution_option = None
 
+        try:
+            self.force_closure_dts_ls = params_dict['force_closure_dts_ls']
+        except:
+            self.force_closure_dts_ls = None
+
     @try_execution
     def get_conns_str(self):
 
@@ -100,17 +105,21 @@ class sp50015mStrategy:
     def transformations(self, inputs_dict, **kwargs):
 
         option = kwargs.get('option', None)
+        strategy = self.strategy 
 
         outputs_dict = inputs_dict
         
         # Compute indicators
-        strategy = self.strategy 
         computestrategiessndicators = computeStrategiesIndicators(strategy = strategy, inputs_dict = outputs_dict)
         computestrategiessndicators.run()
         outputs_dict = computestrategiessndicators.outputs_dict
 
         # Applay strategy
-        strategiesimplementation = strategiesImplementation(strategy = strategy, inputs_dict = outputs_dict)
+        params_dict = {}
+        params_dict['strategy'] = strategy
+        params_dict['force_closure_dts_ls'] = self.force_closure_dts_ls
+
+        strategiesimplementation = strategiesImplementation(params_dict = params_dict, inputs_dict = outputs_dict)
         strategiesimplementation.run()
         outputs_dict = strategiesimplementation.outputs_dict
 
